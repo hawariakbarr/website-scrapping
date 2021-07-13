@@ -1,4 +1,6 @@
 import scrapy
+import requests
+import logging
 
 class MyItem(scrapy.Item):
     images = scrapy.Field()
@@ -12,61 +14,51 @@ class ReviewspiderSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        images = response.css('div.deviceoverviewsensorvalues a img::attr(src)').extract()
+        # images = response.css('div.deviceoverviewsensorvalues a img::attr(src)').extract()
         uptd_name = response.css('div.deviceoverviewsensorvalues span a::text').extract()
-        detail_urls = response.css('div.deviceoverviewsensorvalues a::attr(href)').extract()
+        detail_urls = response.css('div.deviceoverviewsensorvalues a::attr(id)').extract()
 
-        for idx, val in enumerate(zip(images, detail_urls, uptd_name)):
-            scraped_info = {
-                'idx_data': '{}'.format(idx),
-                'image_urls' : 'https://125.213.129.105{}'.format(val[0]),
-                'detail_urls' : 'https://125.213.129.105/{}&Username=Diskominfo%20Jabar&Password=P4sswordJabar'.format(val[1]),
-                'uptd_name' : val[2]
-            }
-            
-            yield scraped_info
-        # # for i in response.css('div.prtg-box.prtg-plugin.maingraph a::attr(href)').getall():
-        # #     data.append(i)
-        # for i in response.css('div.deviceoverviewsensorvalues a img::attr(src)').getall():
-        #     data.append(i)
+        
+        for idx, val in enumerate(zip(detail_urls, uptd_name)):
+            yield response.follow('https://125.213.129.105/controls/sensorgraph.htm?id={}&graphid=2&columns=datetime,value_,coverage&Username=Diskominfo%20Jabar&Password=P4sswordJabar'.format(val[0]), self.parse_detail, meta={'uptd_name': val[1], 'uptd_id': val[0]})   
 
-        # #     data.append(i)
-        # for i in response.css('div.deviceoverviewsensorvalues span a::text').getall():
-        #     name.append(i)
-
-        # for i in response.css('div.deviceoverviewsensorvalues a::attr(href)').getall():
-        #     data.append(i)
-
-        # for idx, val in enumerate(data):
-        #     yield {
-        #         name[idx]: 'https://125.213.129.105{}'.format(val)
+        # for idx, val in enumerate(zip(images, detail_urls, uptd_name)):
+        #     scraped_info = {
+        #         'idx_data': '{}'.format(idx),
+        #         'image_urls' : 'https://125.213.129.105{}'.format(val[0]),
+        #         'detail_urls' : val[1],
+        #         'uptd_name' : val[2]
         #     }
-           
+        #     yield scraped_info
 
-    # def parse_page(self, response):
-  
-    #     # Scraping all the items for all the reviewers mentioned on that Page
-        
-    #     names=response.xpath('//div[@data-hook="review"]//span[@class="a-profile-name"]/text()').extract()
-    #     reviewerLink=response.xpath('//div[@data-hook="review"]//a[@class="a-profile"]/@href').extract()
-    #     reviewTitles=response.xpath('//a[@data-hook="review-title"]/span/text()').extract()
-    #     reviewBody=response.xpath('//span[@data-hook="review-body"]/span').xpath('normalize-space()').getall()
-    #     verifiedPurchase=response.xpath('//span[@data-hook="avp-badge"]/text()').extract()
-    #     postDate=response.xpath('//span[@data-hook="review-date"]/text()').extract()
-    #     starRating=response.xpath('//i[@data-hook="review-star-rating"]/span[@class="a-icon-alt"]/text()').extract()
-    #     helpful = response.xpath('//span[@class="cr-vote"]//span[@data-hook="helpful-vote-statement"]/text()').extract()
-        
-    #     # Extracting details of each reviewer and storing it in in the MyItem object items and then appending it to the JSON file.
-        
-    #     for (name, reviewLink, title, Review, Verified, date, rating, helpful_count) in zip(names, reviewerLink, reviewTitles, reviewBody, verifiedPurchase, postDate, starRating, helpful):
-            
-    #         # Getting the Next Page URL for futher scraping.
-    #         next_urls = response.css('.a-last > a::attr(href)').extract_first()
-            
-    #         yield MyItem(names=name, reviewerLink = reviewLink, reviewTitles=title, reviewBody=Review, verifiedPurchase=Verified, postDate=date, starRating=rating, helpful=helpful_count, nextPage=next_urls)
 
-    #     # This will get the next psge URL
-    #         next_page = response.css('.a-last > a::attr(href)').extract_first()
-    #         # Checking if next page is not none then loop back in the same function with the next page URL.
-    #         if next_page is not None:
-    #             yield response.follow("https://www.amazon.in"+next_page, callback=self.parse_page)
+    def parse_detail(self, response):
+        uptd_name = response.request.meta['uptd_name']
+        uptd_id= response.request.meta['uptd_id']
+        # detail_data = response.css('div.overviewsmalldata ul li span.overview-data::text').extract()
+        # label_data = response.css('div.overviewsmalldata ul li span.overview-title::text').extract()
+        img_data = response.css('div.PNGGraph img::attr(src)').get()
+        detail_data = []
+
+        res = requests.get("https://125.213.129.105/api/status.json?asjson=true&id={}&Username=Diskominfo%20Jabar&Password=P4sswordJabar".format(uptd_id), verify=False)
+        jsonRes = res.json()
+
+        detail_data = {
+            'last_scan' : jsonRes['object']['lastcheck'],
+            'last_up' : jsonRes['object']['lastup'],
+            'last_down' : jsonRes['object']['lastdown'],
+            'uptime' : jsonRes['object']['uptime'],
+            'downtime' : jsonRes['object']['downtime'],
+            'downtimetime' : jsonRes['object']['downtimetime'],
+            'coverage' : jsonRes['object']['coverage'],
+            'coveragetime' : jsonRes['object']['coveragetime'],
+            'interval' : jsonRes['object']['interval'],
+            'sensortype' : jsonRes['object']['sensortype'],
+            'name' : jsonRes['object']['name']
+        }
+
+        yield { 
+            'uptd_name' : uptd_name,
+            'detail_data' : detail_data,
+            'img_url' : 'https://125.213.129.105{}&Username=Diskominfo%20Jabar&Password=P4sswordJabar'.format(img_data)
+        }
