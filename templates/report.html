@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview-Data</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.es.min.js"></script>
+</head>
+<body>
+    <section class="header-report mt-3">
+        <!-- <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-sm btn-primary float-right">
+                        <i class="fas fa-download"></i> Generate PDF
+                    </button>
+                </div>
+            </div>
+        </div> -->
+    </section>
+
+    <section class="content-report">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 d-flex justify-content-center">
+                    <button id="btnPrint" type="button" class="btn btn-sm btn-primary" onclick="tobeConfirm()">
+                        <i class="fas fa-download"></i> Generate PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="dvContainer" class="container">
+            <!-- {% for item in data %}
+                
+            {% endfor %}  -->
+            <div class="row">
+                <div class="col-sm">
+                    <h5 style="font-size: 1.1rem;">{{data[7]['seq_number']}}. {{data[7]['uptd_name']}}</h5>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 20px;">
+                <div class="col-sm col-sm-6 d-flex justify-content-center">
+                    <img src="{{data[7]['img_url']}}" width="100%" alt="{{data[7]['uptd_name']}}" style="width: 375px;border: 2px solid grey;height:226px;">
+                </div>
+                <div class="col-sm col-sm-6 d-flex justify-content-center">
+                     <table class="table-fill">
+                        <tbody class="table-hover">
+                            <tr>
+                                <td class="text-left">Sensor Type</td>
+                                <td class="text-left">{{data[7]['detail_data']['sensortype']}}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Last Scan</td>
+                                <td class="text-left">{{data[7]['detail_data']['last_scan']}}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Last Up</td>
+                                <td class="text-left">{{data[7]['detail_data']['last_up']}}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Last Down</td>
+                                <td class="text-left">{{data[7]['detail_data']['last_down']}}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Uptime</td>
+                                <td class="text-left">{{data[7]['detail_data']['uptime']}}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Downtime</td>
+                                <td class="text-left">{{data[7]['detail_data']['downtime']}}</td>
+                            </tr>
+                        </tbody>
+                     </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script type="text/javascript">
+        function tobeConfirm() {
+            confirm("Are you sure?");
+        }
+        $(function() { $("#btnPrint").click(function (event) 
+            { $.getJSON('/export', { },
+                function(data) { }); return false; 
+            }); 
+        }); 
+    </script>
+</body>
+</html>
