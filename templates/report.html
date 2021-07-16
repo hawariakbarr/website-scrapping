@@ -36,49 +36,49 @@
             </div>
         </div>
         <div id="dvContainer" class="container">
-            <!-- {% for item in data %}
-                
-            {% endfor %}  -->
+            {% for item in range(5) %}
             <div class="row">
                 <div class="col-sm">
-                    <h5 style="font-size: 1.1rem;">{{data[7]['seq_number']}}. {{data[7]['uptd_name']}}</h5>
+                    <h5 style="font-size: 1.1rem;">{{data[item]['seq_number']}}. {{data[item]['uptd_name']}}</h5>
                 </div>
             </div>
             <div class="row" style="margin-bottom: 20px;">
                 <div class="col-sm col-sm-6 d-flex justify-content-center">
-                    <img src="{{data[7]['img_url']}}" width="100%" alt="{{data[7]['uptd_name']}}" style="width: 375px;border: 2px solid grey;height:226px;">
+                    <img src="{{data[item]['img_url']}}" width="100%" alt="{{data[item]['uptd_name']}}" style="width: 375px;border: 2px solid grey;height:226px;">
                 </div>
                 <div class="col-sm col-sm-6 d-flex justify-content-center">
                      <table class="table-fill">
                         <tbody class="table-hover">
                             <tr>
                                 <td class="text-left">Sensor Type</td>
-                                <td class="text-left">{{data[7]['detail_data']['sensortype']}}</td>
+                                <td class="text-left">{{data[item]['detail_data']['sensortype']}}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">Last Scan</td>
-                                <td class="text-left">{{data[7]['detail_data']['last_scan']}}</td>
+                                <td class="text-left">{{data[item]['detail_data']['last_scan']}}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">Last Up</td>
-                                <td class="text-left">{{data[7]['detail_data']['last_up']}}</td>
+                                <td class="text-left">{{data[item]['detail_data']['last_up']}}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">Last Down</td>
-                                <td class="text-left">{{data[7]['detail_data']['last_down']}}</td>
+                                <td class="text-left">{{data[item]['detail_data']['last_down']}}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">Uptime</td>
-                                <td class="text-left">{{data[7]['detail_data']['uptime']}}</td>
+                                <td class="text-left">{{data[item]['detail_data']['uptime']}}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">Downtime</td>
-                                <td class="text-left">{{data[7]['detail_data']['downtime']}}</td>
+                                <td class="text-left">{{data[item]['detail_data']['downtime']}}</td>
                             </tr>
                         </tbody>
                      </table>
                 </div>
             </div>
+            {% endfor %} 
+            
         </div>
     </section>
     <script type="text/javascript">
