@@ -1,15 +1,19 @@
-import crochet
+import pdfkit, os, uuid, time, crochet
 from operator import itemgetter
-
+import scrapy
+import requests
+import logging
+from operator import itemgetter
 
 crochet.setup()
 
-from flask import Flask , render_template, jsonify, request, redirect, url_for
+from flask import *
 from scrapy import signals
 from scrapy.crawler import CrawlerRunner
 from scrapy.signalmanager import dispatcher
-import time
-import os
+
+# wkhtml = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+# config = pdfkit.configuration(wkhtmltopdf=wkhtml)
 
 # Importing our Scraping Function from the amazon_scraping file
 
@@ -19,6 +23,10 @@ from scrapingweb.scrapingweb.spiders.scrap_pgrt import ReviewspiderSpider
 
 app = Flask(__name__)
 
+Download_PATH = 'wkhtmltopdf/bin/wkhtmltopdf.exe'
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+Download_FOLDER = os.path.join(APP_ROOT, Download_PATH)
+
 output_data = []
 crawl_runner = CrawlerRunner()
 
@@ -26,6 +34,36 @@ crawl_runner = CrawlerRunner()
 @app.route('/')
 def index():
 	return render_template("index.html") # Returns index.html file in templates folder.
+
+@app.route('/export', methods=['POST'])
+def export():
+    # url = request.form['URL']
+    try:
+        
+        options = {
+        'page-size': 'Letter',
+        'margin-top': '0.75in',
+        'margin-right': '0.75in',
+        'margin-bottom': '0.75in',
+        'margin-left': '0.75in',
+        'encoding': "UTF-8",
+        'no-outline': None
+        } 
+        filename = str(uuid.uuid4()) + '.pdf'
+        config = pdfkit.configuration(wkhtmltopdf=Download_FOLDER)
+        pdfkit.from_url("http://127.0.0.1:5000/scrape", filename, configuration=config, options=options)
+        pdfDownload = open(filename, 'rb').read()
+        os.remove(filename)
+        return Response(
+            pdfDownload,
+            mimetype="application/pdf",
+            headers={
+                "Content-disposition": "attachment; filename=" + filename,
+                "Content-type": "application/force-download"
+            }
+        )
+    except ValueError:
+        print("Oops!")
 
 
 # After clicking the Submit Button FLASK will come into this
@@ -59,13 +97,12 @@ def submit():
 @app.route("/scrape")
 def scrape():
     scrape_with_crochet(baseURL=baseURL) # Passing that URL to our Scraping Function
-    time.sleep(25) # Pause the function while the scrapy spider is running
+    time.sleep(15) # Pause the function while the scrapy spider is running
     # listData = [1,2,3,4,5]
     newlist = sorted(output_data, key=itemgetter('seq_number'), reverse=False)
     return render_template("report.html", data = newlist) # Returns the scraped data after being running for 20 seconds.
   
 @crochet.run_in_reactor
-@crochet.wait_for(timeout=60.0)
 def scrape_with_crochet(baseURL):
     # This will connect to the dispatcher that will kind of loop the code between these two functions.
     dispatcher.connect(_crawler_result, signal=signals.item_scraped)

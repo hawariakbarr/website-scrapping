@@ -20,7 +20,7 @@ class ReviewspiderSpider(scrapy.Spider):
         self.start_urls.append(self.myBaseUrl)
         super().__init__(**kwargs)
 
-    custom_settings = {'FEED_URI': 'scrapingweb/outputfile.json', 'CLOSESPIDER_TIMEOUT' : 20} # This will tell scrapy to store the scraped data to outputfile.json and for how long the spider should run.
+    custom_settings = {'FEED_URI': 'scrapingweb/outputfile.json'} # This will tell scrapy to store the scraped data to outputfile.json and for how long the spider should run.
 
     def parse(self, response):
         images = response.css('div.deviceoverviewsensorvalues a img::attr(src)').extract()
