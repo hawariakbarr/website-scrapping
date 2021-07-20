@@ -22,7 +22,7 @@ from scrapingweb.scrapingweb.spiders.scrap_pgrt import ReviewspiderSpider
 
 # Creating Flask App Variable
 
-app = Flask('Scrape With Flask')
+app = Flask(__name__)
 crawl_runner = CrawlerRunner()      # requires the Twisted reactor to run
 quotes_list = []                    # store quotes
 scrape_in_progress = False
@@ -116,8 +116,8 @@ def finished_scrape(null):
     scrape_complete = True
 
     
-if __name__=='__main__':
-    app.run('0.0.0.0', 9000, debug=True)
+if __name__== "__main__":
+    app.run(debug=True)
 # if __name__== "__main__":
 #     app.run(debug=True)
 # After clicking the Submit Button FLASK will come into this
