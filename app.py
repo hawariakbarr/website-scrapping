@@ -1,6 +1,6 @@
 
 
-import pdfkit, os, uuid, time, crochet, requests, json
+import pdfkit, os, uuid, crochet
 
 
 crochet.setup()     # initialize crochet
@@ -9,12 +9,7 @@ from operator import itemgetter
 from operator import itemgetter
 
 from flask import *
-from scrapy import signals
 from scrapy.crawler import CrawlerRunner
-from scrapy.signalmanager import dispatcher
-
-# wkhtml = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
-# config = pdfkit.configuration(wkhtmltopdf=wkhtml)
 
 # Importing our Scraping Function from the amazon_scraping file
 
@@ -93,7 +88,7 @@ def crawl_for_quotes():
         return 'SCRAPE COMPLETE'
     return 'SCRAPE IN PROGRESS'
 
-@app.route('/results')
+@app.route('/results', methods=['GET', 'POST'])
 def get_results():
     """
     Get the results only if a spider has results
