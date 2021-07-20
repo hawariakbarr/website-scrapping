@@ -1,7 +1,4 @@
-
-
-import pdfkit, os, uuid, crochet
-
+import os, uuid, crochet, os, subprocess, platform
 
 crochet.setup()     # initialize crochet
 
@@ -18,6 +15,16 @@ from scrapingweb.scrapingweb.spiders.scrap_pgrt import ReviewspiderSpider
 # Creating Flask App Variable
 
 app = Flask(__name__)
+
+# if platform.system() == 'Windows':
+#     pdfkit_config = pdfkit.configuration(
+#         wkhtmltopdf=os.environ.get('WKHTMLTOPDF_PATH', 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+#     )
+# else:
+#     WKHTMLTOPDF_CMD = subprocess.Popen(['which', os.environ.get('WKHTMLTOPDF_PATH', '/app/bin/wkhtmltopdf')],
+#     stdout=subprocess.PIPE).communicate()[0].strip()
+#     pdfkit_config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_CMD)
+
 crawl_runner = CrawlerRunner()      # requires the Twisted reactor to run
 quotes_list = []                    # store quotes
 scrape_in_progress = False
@@ -25,9 +32,9 @@ scrape_complete = False
 
 
 #PDFKIT setup
-Download_PATH = 'wkhtmltopdf/bin/wkhtmltopdf.exe'
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-Download_FOLDER = os.path.join(APP_ROOT, Download_PATH)
+# Download_PATH = 'wkhtmltopdf/bin/wkhtmltopdf.exe'
+# APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+# Download_FOLDER = os.path.join(APP_ROOT, Download_PATH)
 
 # By Deafult Flask will come into this when we run the file
 @app.route('/')
@@ -40,34 +47,34 @@ def index():
 def greeting(name='World'):
     return 'Hello %s!' % (name)
 
-@app.route('/export', methods=['POST'])
-def export():
-    # url = request.form['URL']
-    try:
-        options = {
-        'page-size': 'Letter',
-        'margin-top': '0.75in',
-        'margin-right': '0.75in',
-        'margin-bottom': '0.75in',
-        'margin-left': '0.75in',
-        'encoding': "UTF-8",
-        'no-outline': None
-        } 
-        filename = str(uuid.uuid4()) + '.pdf'
-        config = pdfkit.configuration(wkhtmltopdf=Download_FOLDER)
-        pdfkit.from_url("http://127.0.0.1:5000/scrape", filename, configuration=config, options=options)
-        pdfDownload = open(filename, 'rb').read()
-        os.remove(filename)
-        return Response(
-            pdfDownload,
-            mimetype="application/pdf",
-            headers={
-                "Content-disposition": "attachment; filename=" + filename,
-                "Content-type": "application/force-download"
-            }
-        )
-    except ValueError:
-        print("Oops!")
+# @app.route('/export', methods=['POST'])
+# def export():
+#     # url = request.form['URL']
+#     try:
+#         options = {
+#         'page-size': 'Letter',
+#         'margin-top': '0.75in',
+#         'margin-right': '0.75in',
+#         'margin-bottom': '0.75in',
+#         'margin-left': '0.75in',
+#         'encoding': "UTF-8",
+#         'no-outline': None
+#         } 
+#         filename = str(uuid.uuid4()) + '.pdf'
+#         config = pdfkit.configuration(wkhtmltopdf=Download_FOLDER)
+#         pdfkit.from_url("http://127.0.0.1:5000/scrape", filename, configuration=config, options=options)
+#         pdfDownload = open(filename, 'rb').read()
+#         os.remove(filename)
+#         return Response(
+#             pdfDownload,
+#             mimetype="application/pdf",
+#             headers={
+#                 "Content-disposition": "attachment; filename=" + filename,
+#                 "Content-type": "application/force-download"
+#             }
+#         )
+#     except ValueError:
+#         print("Oops!")
 
 
 @app.route('/crawl', methods=['GET', 'POST'])
@@ -88,7 +95,7 @@ def crawl_for_quotes():
         return 'SCRAPE COMPLETE'
     return 'SCRAPE IN PROGRESS'
 
-@app.route('/results', methods=['GET', 'POST'])
+@app.route('/results')
 def get_results():
     """
     Get the results only if a spider has results

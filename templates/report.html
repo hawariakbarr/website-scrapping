@@ -17,18 +17,18 @@
     </section> -->
 
     <section class="content-report">
-        <div id="dvContainer" class="container mb-3 mt-3">
-            {% for item in range(5) %}
+        <div id="dvContainer" class="container mb-3 mt-3 h-100">
+            {% for item in range(5, 10) %}
             <div class="row">
                 <div class="col-sm col-sm-6 d-flex justify-content-start" style="display: inline-block;">
                     <h5 style="font-size: 1.1rem;">{{data[item]['seq_number']}}. {{data[item]['uptd_name']}}</h5>
                 </div>
             </div>
             <div class="row" style="margin-bottom: 20px;">
-                <div class="col-sm col-sm-6 d-flex justify-content-center" style="display: inline-block;">
+                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block;">
                     <img src="{{data[item]['img_url']}}" width="100%" alt="{{data[item]['uptd_name']}}" style="width: 375px;border: 2px solid grey;height:226px;">
                 </div>
-                <div class="col-sm col-sm-6 d-flex justify-content-center" style="display: inline-block;">
+                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block;">
                     <table class="table-fill">
                         <tbody class="table-hover">
                             <tr>
@@ -64,11 +64,11 @@
 
         <div class="container mb-3">
             <div class="row">
-                <div class="col-sm-12 d-flex justify-content-center mt-3">
+                <div class="col-sm-12 d-flex justify-content-center mb-3">
                     <!-- <form action="/export" method="POST">
                         <button type="submit" onclick="tobeConfirm()" class="btn btn-default btn-sm">Convert to PDF</button>
                     </form> -->
-                    <button id="btnPrint" type="button" class="btn btn-sm btn-primary" onclick="tobeConfirm()">
+                    <button id="btnPrint" type="button" class="btn btn-sm btn-primary">
                         <i class="fas fa-download"></i> Generate PDF
                     </button>
                 </div>
@@ -81,7 +81,7 @@
             if (confirm('Are you sure to print this page?')) {
                 // Save it!
                 var divContents = $("#dvContainer").html();
-                var printWindow = window.open('', '', 'height=400,width=800');
+                var printWindow = window.open('', '', 'height=800,width=800');
                 printWindow.document.write('<html><head><title></title>');
                 printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">');
                 printWindow.document.write('<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>');
