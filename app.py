@@ -79,6 +79,7 @@ def submit():
         	os.remove("/scrapingnweb/outputfile.json")
 
         return redirect(url_for('scrape')) # Passing to the Scrape function
+        # return "Scrapping finished"
 
 # @app.route('/export', methods=['POST'])
 # def export():
@@ -100,7 +101,7 @@ def scrape():
     time.sleep(15) # Pause the function while the scrapy spider is running
     # listData = [1,2,3,4,5]
     newlist = sorted(output_data, key=itemgetter('seq_number'), reverse=False)
-    return render_template("report.html", data = newlist) # Returns the scraped data after being running for 20 seconds.
+    return json.dumps(newlist)
   
 @crochet.run_in_reactor
 def scrape_with_crochet(baseURL):

@@ -1,3 +1,42 @@
+# import re
+
+# import scrapy
+
+
+# class QuoteSpider(scrapy.Spider):
+
+#     name = 'quote'
+#     start_urls = ['http://quotes.toscrape.com']
+#     quotation_mark_pattern = re.compile(r'“|”')
+
+#     def parse(self, response):
+#         quotes = response.xpath('//div[@class="quote"]')
+#         for quote in quotes:
+#             # extract quote
+#             quote_text = quote.xpath('.//span[@class="text"]/text()').extract_first()
+#             quote_text = self.quotation_mark_pattern.sub('', quote_text)
+
+#             # extract author
+#             author = quote.xpath('.//span//small[@class="author"]/text()').extract_first()
+
+#             # extract tags
+#             tags = []
+#             for tag in quote.xpath('.//div[@class="tags"]//a[@class="tag"]/text()'):
+#                 tags.append(tag.extract())
+
+#             # append to list
+#             # NOTE: quotes_list is passed as a keyword arg in the Flask app
+#             self.quotes_list.append({
+#                 'quote': quote_text,
+#                 'author': author,
+#                 'tags': tags})
+
+#         # if there's next page, scrape it next
+#         next_page = response.xpath('//nav//ul//li[@class="next"]//@href').extract_first()
+#         if next_page is not None:
+#             yield response.follow(next_page)
+
+
 import scrapy
 import requests
 import logging
@@ -9,9 +48,9 @@ class MyItem(scrapy.Item):
 
 class ReviewspiderSpider(scrapy.Spider):
     name = 'pgrt'
-    # start_urls=["https://125.213.129.105/controls/objectgraph.htm?id=0&graphid=2&columns=datetime,value_,coverage&_=1625796838093&Username=Diskominfo%20Jabar&Password=P4sswordJabar"]
-    #     # "https://125.213.129.105/controls/objectgraph.htm?id=0&graphid=3&columns=datetime,value_,coverage&_=1625796838093&Username=Diskominfo%20Jabar&Password=P4sswordJabar",
-    # ]
+    # start_urls=[
+    #     'https://125.213.129.105/controls/objectgraph.htm?id=0&graphid=2&columns=datetime,value_,coverage&_=1625796838093&Username=Diskominfo%20Jabar&Password=P4sswordJabar'
+    #     ]
 
     myBaseUrl = ''
     start_urls = []
@@ -74,6 +113,14 @@ class ReviewspiderSpider(scrapy.Spider):
             'name' : jsonRes['object']['name']
         }
 
+        # self.quotes_list.append({
+        #     'seq_number' : seq_data,
+        #     'uptd_name' : uptd_name,
+        #     'detail_data' : detail_data,
+        #     'img_url' : 'https://125.213.129.105{}'.format(img_data)
+        #     })
+
+        
         yield {
             'seq_number' : seq_data,
             'uptd_name' : uptd_name,
