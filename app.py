@@ -1,11 +1,12 @@
-import pdfkit, os, uuid, time, crochet
-from operator import itemgetter
-import scrapy
-import requests
-import logging
-from operator import itemgetter
 
-crochet.setup()
+
+import pdfkit, os, uuid, time, crochet, requests, json
+
+
+crochet.setup()     # initialize crochet
+
+from operator import itemgetter
+from operator import itemgetter
 
 from flask import *
 from scrapy import signals
@@ -21,25 +22,33 @@ from scrapingweb.scrapingweb.spiders.scrap_pgrt import ReviewspiderSpider
 
 # Creating Flask App Variable
 
-app = Flask(__name__)
+app = Flask('Scrape With Flask')
+crawl_runner = CrawlerRunner()      # requires the Twisted reactor to run
+quotes_list = []                    # store quotes
+scrape_in_progress = False
+scrape_complete = False
 
+
+#PDFKIT setup
 Download_PATH = 'wkhtmltopdf/bin/wkhtmltopdf.exe'
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 Download_FOLDER = os.path.join(APP_ROOT, Download_PATH)
-
-output_data = []
-crawl_runner = CrawlerRunner()
 
 # By Deafult Flask will come into this when we run the file
 @app.route('/')
 def index():
 	return render_template("index.html") # Returns index.html file in templates folder.
+    # return 'Welcome to the jungle'
+
+@app.route('/greeting')
+@app.route('/greeting/<name>')
+def greeting(name='World'):
+    return 'Hello %s!' % (name)
 
 @app.route('/export', methods=['POST'])
 def export():
     # url = request.form['URL']
     try:
-        
         options = {
         'page-size': 'Letter',
         'margin-top': '0.75in',
@@ -66,20 +75,65 @@ def export():
         print("Oops!")
 
 
-# After clicking the Submit Button FLASK will come into this
-@app.route('/', methods=['POST'])
-def submit():
-    if request.method == 'POST':
-        s = request.form['url'] # Getting the Input Amazon Product URL
-        global baseURL
-        baseURL = s
-        
-        # This will remove any existing file with the same name so that the scrapy will not append the data to any previous file.
-        if os.path.exists("/scrapingnweb/outputfile.json"): 
-        	os.remove("/scrapingnweb/outputfile.json")
+@app.route('/crawl', methods=['GET', 'POST'])
+def crawl_for_quotes():
+    """
+    Scrape for quotes
+    """
+    global scrape_in_progress
+    global scrape_complete
 
-        return redirect(url_for('scrape')) # Passing to the Scrape function
-        # return "Scrapping finished"
+    if not scrape_in_progress:
+        scrape_in_progress = True
+        global quotes_list
+        # start the crawler and execute a callback when complete
+        scrape_with_crochet(quotes_list)
+        return 'SCRAPING'
+    elif scrape_complete:
+        return 'SCRAPE COMPLETE'
+    return 'SCRAPE IN PROGRESS'
+
+@app.route('/results')
+def get_results():
+    """
+    Get the results only if a spider has results
+    """
+    global scrape_complete
+    if scrape_complete:
+        newlist = sorted(quotes_list, key=itemgetter('seq_number'), reverse=False)
+        return render_template("report.html", data = newlist) # Returns the scraped data
+    return 'Scrape Still Progress or Not Scraping Yet'
+
+@crochet.run_in_reactor
+def scrape_with_crochet(_list):
+    eventual = crawl_runner.crawl(ReviewspiderSpider, quotes_list=_list)
+    eventual.addCallback(finished_scrape)
+
+def finished_scrape(null):
+    """
+    """
+    global scrape_complete
+    scrape_complete = True
+
+    
+if __name__=='__main__':
+    app.run('0.0.0.0', 9000, debug=True)
+# if __name__== "__main__":
+#     app.run(debug=True)
+# After clicking the Submit Button FLASK will come into this
+# @app.route('/', methods=['POST'])
+# def submit():
+#     if request.method == 'POST':
+#         s = request.form['url'] # Getting the Input Amazon Product URL
+#         global baseURL
+#         baseURL = s
+        
+#         # This will remove any existing file with the same name so that the scrapy will not append the data to any previous file.
+#         if os.path.exists("/scrapingnweb/outputfile.json"): 
+#         	os.remove("/scrapingnweb/outputfile.json")
+
+#         return redirect(url_for('scrape')) # Passing to the Scrape function
+#         # return "Scrapping finished"
 
 # @app.route('/export', methods=['POST'])
 # def export():
@@ -95,35 +149,31 @@ def submit():
 #     '/tmp/example.pdf', stylesheets=[css],
 #     font_config=font_config)
 
-@app.route("/scrape")
-def scrape():
-    scrape_with_crochet(baseURL=baseURL) # Passing that URL to our Scraping Function
-    time.sleep(15) # Pause the function while the scrapy spider is running
-    # listData = [1,2,3,4,5]
-    newlist = sorted(output_data, key=itemgetter('seq_number'), reverse=False)
-    return json.dumps(newlist)
+# @app.route("/scrape")
+# def scrape():
+#     scrape_with_crochet(baseURL=baseURL) # Passing that URL to our Scraping Function
+#     time.sleep(15) # Pause the function while the scrapy spider is running
+#     # listData = [1,2,3,4,5]
+#     newlist = sorted(output_data, key=itemgetter('seq_number'), reverse=False)
+#     return json.dumps(newlist)
   
-@crochet.run_in_reactor
-def scrape_with_crochet(baseURL):
-    # This will connect to the dispatcher that will kind of loop the code between these two functions.
-    dispatcher.connect(_crawler_result, signal=signals.item_scraped)
+# @crochet.run_in_reactor
+# def scrape_with_crochet(baseURL):
+#     # This will connect to the dispatcher that will kind of loop the code between these two functions.
+#     dispatcher.connect(_crawler_result, signal=signals.item_scraped)
     
-    # This will connect to the ReviewspiderSpider function in our scrapy file and after each yield will pass to the crawler_result function.
-    eventual = crawl_runner.crawl(ReviewspiderSpider, category = baseURL)
-    eventual.addCallback(finished_scrape)
+#     # This will connect to the ReviewspiderSpider function in our scrapy file and after each yield will pass to the crawler_result function.
+#     eventual = crawl_runner.crawl(ReviewspiderSpider, category = baseURL)
+#     eventual.addCallback(finished_scrape)
 
-def finished_scrape(null):
-    """
-    A callback that is fired after the scrape has completed.
-    Set a flag to allow display the results from /results
-    """
-    global scrape_complete
-    scrape_complete = True
+# def finished_scrape(null):
+#     """
+#     A callback that is fired after the scrape has completed.
+#     Set a flag to allow display the results from /results
+#     """
+#     global scrape_complete
+#     scrape_complete = True
 
-#This will append the data to the output data list.
-def _crawler_result(item, response, spider):
-    output_data.append(dict(item))
-
-
-if __name__== "__main__":
-    app.run(debug=True)
+# #This will append the data to the output data list.
+# def _crawler_result(item, response, spider):
+#     output_data.append(dict(item))

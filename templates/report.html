@@ -17,19 +17,7 @@
     </section> -->
 
     <section class="content-report">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12 d-flex justify-content-center mt-3">
-                    <!-- <form action="/export" method="POST">
-                        <button type="submit" onclick="tobeConfirm()" class="btn btn-default btn-sm">Convert to PDF</button>
-                    </form> -->
-                    <button id="btnPrint" type="button" class="btn btn-sm btn-primary" onclick="tobeConfirm()">
-                        <i class="fas fa-download"></i> Generate PDF
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id="dvContainer" class="container">
+        <div id="dvContainer" class="container mb-3">
             {% for item in range(5) %}
             <div class="row">
                 <div class="col-sm col-sm-6 d-flex justify-content-start" style="display: inline-block;">
@@ -40,55 +28,6 @@
                 <div class="col-sm col-sm-6 d-flex justify-content-center" style="display: inline-block;">
                     <img src="{{data[item]['img_url']}}" width="100%" alt="{{data[item]['uptd_name']}}" style="width: 375px;border: 2px solid grey;height:226px;">
                 </div>
-                <!-- <div class="col-sm col-sm-6">
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-3">
-                            Sensor Type
-                        </div>
-                        <div class="col-3">
-                            {{data[item]['detail_data']['sensortype']}}
-                        </div>
-                    </div>
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-3">
-                            Last Scan
-                        </div>
-                        <div class="col-3">
-                            {{data[item]['detail_data']['last_scan']}}
-                        </div>
-                    </div>
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-3">
-                            Last Up
-                        </div>
-                        <div class="col-3">
-                            {{data[item]['detail_data']['last_up']}}
-                        </div>
-                    </div>
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-3">
-                            Last Down
-                        </div>
-                        <div class="col-3">
-                            {{data[item]['detail_data']['last_down']}}
-                        </div>
-                    </div>
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-3">
-                            Uptime
-                        </div>
-                        <div class="col-3">
-                            {{data[item]['detail_data']['uptime']}}
-                        </div>
-                    </div>
-                    <div class="row d-flex justify-content-center mb-3">
-                        <div class="col-3">
-                            Downtime
-                        </div>
-                        <div class="col-3">
-                            {{data[item]['detail_data']['downtime']}}
-                        </div>
-                    </div> -->
                 <div class="col-sm col-sm-6 d-flex justify-content-center" style="display: inline-block;">
                     <table class="table-fill">
                         <tbody class="table-hover">
@@ -122,28 +61,46 @@
             </div>
             {% endfor %} 
         </div>
+
+        <div class="container mb-3">
+            <div class="row">
+                <div class="col-sm-12 d-flex justify-content-center mt-3">
+                    <!-- <form action="/export" method="POST">
+                        <button type="submit" onclick="tobeConfirm()" class="btn btn-default btn-sm">Convert to PDF</button>
+                    </form> -->
+                    <button id="btnPrint" type="button" class="btn btn-sm btn-primary" onclick="tobeConfirm()">
+                        <i class="fas fa-download"></i> Generate PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </section>
     <script type="text/javascript">
         $("#btnPrint").on("click", function () {
-            var divContents = $("#dvContainer").html();
-            var printWindow = window.open('', '', 'height=400,width=800');
-            printWindow.document.write('<html><head><title></title>');
-            printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">');
-            printWindow.document.write('<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>');
-            printWindow.document.write('<link rel="stylesheet" href="{{ url_for("static", filename="css/style.css") }}">');
-            printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(divContents);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-            printWindow.onafterprint = function(){
-                printWindow.close()
+            if (confirm('Are you sure to print this page?')) {
+                // Save it!
+                var divContents = $("#dvContainer").html();
+                var printWindow = window.open('', '', 'height=400,width=800');
+                printWindow.document.write('<html><head><title></title>');
+                printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">');
+                printWindow.document.write('<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>');
+                printWindow.document.write('<link rel="stylesheet" href="{{ url_for("static", filename="css/style.css") }}">');
+                printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(divContents);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.onafterprint = function(){
+                    printWindow.close()
+                }
+                
+            } else {
+            // Do nothing!
+            console.log('Oke then, its ok not to be ok');
             }
         });
-        function tobeConfirm() {
-            confirm("Are you sure?");
-        }
     </script>
 </body>
 </html>
