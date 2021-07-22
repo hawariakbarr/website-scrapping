@@ -1,4 +1,4 @@
-import os, uuid, crochet, os, subprocess, platform
+import os, uuid, crochet, os, subprocess, platform, time
 
 crochet.setup()     # initialize crochet
 
@@ -47,36 +47,6 @@ def index():
 def greeting(name='World'):
     return 'Hello %s!' % (name)
 
-# @app.route('/export', methods=['POST'])
-# def export():
-#     # url = request.form['URL']
-#     try:
-#         options = {
-#         'page-size': 'Letter',
-#         'margin-top': '0.75in',
-#         'margin-right': '0.75in',
-#         'margin-bottom': '0.75in',
-#         'margin-left': '0.75in',
-#         'encoding': "UTF-8",
-#         'no-outline': None
-#         } 
-#         filename = str(uuid.uuid4()) + '.pdf'
-#         config = pdfkit.configuration(wkhtmltopdf=Download_FOLDER)
-#         pdfkit.from_url("http://127.0.0.1:5000/scrape", filename, configuration=config, options=options)
-#         pdfDownload = open(filename, 'rb').read()
-#         os.remove(filename)
-#         return Response(
-#             pdfDownload,
-#             mimetype="application/pdf",
-#             headers={
-#                 "Content-disposition": "attachment; filename=" + filename,
-#                 "Content-type": "application/force-download"
-#             }
-#         )
-#     except ValueError:
-#         print("Oops!")
-
-
 @app.route('/crawl', methods=['GET', 'POST'])
 def crawl_for_quotes():
     """
@@ -90,10 +60,13 @@ def crawl_for_quotes():
         global quotes_list
         # start the crawler and execute a callback when complete
         scrape_with_crochet(quotes_list)
-        return 'SCRAPING'
+        return render_template('loading.html')
     elif scrape_complete:
-        return 'SCRAPE COMPLETE'
-    return 'SCRAPE IN PROGRESS'
+        return redirect(url_for('get_results'))        
+        # return "Scraping Complete"
+    time.sleep(3)
+    return render_template('loading.html')
+    # return "Scraping Still In Progress"
 
 @app.route('/results')
 def get_results():
@@ -104,7 +77,18 @@ def get_results():
     if scrape_complete:
         newlist = sorted(quotes_list, key=itemgetter('seq_number'), reverse=False)
         return render_template("report.html", data = newlist) # Returns the scraped data
-    return 'Scrape Still Progress or Not Scraping Yet'
+    return "You Have Not Generated Data"
+
+@app.route('/home')
+def go_home():
+    crawl_runner.stop()
+    global scrape_in_progress
+    global scrape_complete
+    global quotes_list
+    quotes_list = []
+    scrape_in_progress = False
+    scrape_complete = False
+    return render_template("index.html")
 
 @crochet.run_in_reactor
 def scrape_with_crochet(_list):
@@ -179,3 +163,32 @@ if __name__== "__main__":
 # #This will append the data to the output data list.
 # def _crawler_result(item, response, spider):
 #     output_data.append(dict(item))
+
+# @app.route('/export', methods=['POST'])
+# def export():
+#     # url = request.form['URL']
+#     try:
+#         options = {
+#         'page-size': 'Letter',
+#         'margin-top': '0.75in',
+#         'margin-right': '0.75in',
+#         'margin-bottom': '0.75in',
+#         'margin-left': '0.75in',
+#         'encoding': "UTF-8",
+#         'no-outline': None
+#         } 
+#         filename = str(uuid.uuid4()) + '.pdf'
+#         config = pdfkit.configuration(wkhtmltopdf=Download_FOLDER)
+#         pdfkit.from_url("http://127.0.0.1:5000/scrape", filename, configuration=config, options=options)
+#         pdfDownload = open(filename, 'rb').read()
+#         os.remove(filename)
+#         return Response(
+#             pdfDownload,
+#             mimetype="application/pdf",
+#             headers={
+#                 "Content-disposition": "attachment; filename=" + filename,
+#                 "Content-type": "application/force-download"
+#             }
+#         )
+#     except ValueError:
+#         print("Oops!")

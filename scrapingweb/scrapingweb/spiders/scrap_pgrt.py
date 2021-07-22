@@ -45,11 +45,15 @@ class ReviewspiderSpider(scrapy.Spider):
         downtime = response.css('div.overviewsmalldata ul li span.overview-data dummy::text')[1].extract()
         coverage = response.css('div.overviewsmalldata ul li span.overview-data dummy::text')[2].extract()
         sensortype = response.css('div.overviewsmalldata ul li span.overview-data::text')[0].extract()
+        averageSpeed = response.css("div #table_valuetable2 tr.averages td::text").extract()[2]
         # label_data = response.css('div.overviewsmalldata ul li span.overview-title::text').extract()
         # img_data = response.css('div.PNGGraph img::attr(src)').get()
 
         res = requests.get("https://125.213.129.105/api/status.json?asjson=true&id={}&Username=Diskominfo%20Jabar&Password=P4sswordJabar".format(uptd_id), verify=False)
         jsonRes = res.json()
+
+        # Traffic Total (speed) = Speed Average
+        # Traffic in 
 
         detail_data = {
             'last_scan' : lastscan,
@@ -59,14 +63,17 @@ class ReviewspiderSpider(scrapy.Spider):
             'downtime' : downtime,
             'coverage' : coverage,
             'sensortype' : sensortype,
+            'average_speed': averageSpeed,
             'downtimetime' : jsonRes['object']['downtimetime'],
             'interval' : jsonRes['object']['interval'],
-            'name' : jsonRes['object']['name']
+            'name' : jsonRes['object']['name'],
+            'bandwith' : '600,000 KB'
         }
 
         self.quotes_list.append({
             'seq_number' : seq_data,
             'uptd_name' : uptd_name,
             'detail_data' : detail_data,
-            'img_url' : 'https://125.213.129.105{}'.format(img_data)
+            'img_url' : 'https://125.213.129.105{}'.format(img_data),
+            'address' : 'Jl. Dipenogoro No.22 Citarum, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40115',
             })

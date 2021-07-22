@@ -17,21 +17,42 @@
     </section> -->
 
     <section class="content-report">
+        <div class="container mb-3">
+            <div class="row">
+                <div class="col-sm-12 d-flex justify-content-start mt-3">
+                    <!-- <form action="/export" method="POST">
+                        <button type="submit" onclick="tobeConfirm()" class="btn btn-default btn-sm">Convert to PDF</button>
+                    </form> -->
+                    <form action="/home">
+                        <button id="gohome" type="submit" class="btn btn-sm btn-success">
+                            Home
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
         <div id="dvContainer" class="container mb-3 mt-3 h-100">
             {% for item in range(5, 10) %}
             <div class="row">
-                <div class="col-sm col-sm-6 d-flex justify-content-start" style="display: inline-block;">
-                    <h5 style="font-size: 1.1rem;">{{data[item]['seq_number']}}. {{data[item]['uptd_name']}}</h5>
+                <div class="col-sm col-sm-12 text-center justify-content-center" style="display: inline-block;">
+                    <h5 style="font-size: 1.1rem; margin:0">{{data[item]['seq_number']}}. {{data[item]['uptd_name']}} (Nama PD UPTD disini) </h5>
+                    <p style="font-size: 0.9rem;">{{data[item]['address']}}</p>
                 </div>
             </div>
-            <div class="row" style="margin-bottom: 20px;">
-                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block;">
-                    <img src="{{data[item]['img_url']}}" width="100%" alt="{{data[item]['uptd_name']}}" style="width: 375px;border: 2px solid grey;height:226px;">
+
+            <div class="row">
+                <div class="col-sm col-sm-6 d-flex justify-content-start" style="display: inline-block;">
+                    <h5 style="font-size: 1.1rem;">A. Lintasarta</h5>
                 </div>
+            </div>
+            <div class="row" style="margin-bottom: 40px;">
                 <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block;">
+                    <img src="{{data[item]['img_url']}}" width="100%" alt="{{data[item]['uptd_name']}}" style="width: 426px;border: 2px solid grey;height:206px;">
+                </div>
+                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block; margin-top:35px">
                     <table class="table-fill">
                         <tbody class="table-hover">
-                            <tr>
+                            <!-- <tr>
                                 <td class="text-left">Sensor Type</td>
                                 <td class="text-left">{{data[item]['detail_data']['sensortype']}}</td>
                             </tr>
@@ -42,10 +63,10 @@
                             <tr>
                                 <td class="text-left">Last Up</td>
                                 <td class="text-left">{{data[item]['detail_data']['last_up']}}</td>
-                            </tr>
+                            </tr> -->
                             <tr>
-                                <td class="text-left">Last Down</td>
-                                <td class="text-left">{{data[item]['detail_data']['last_down']}}</td>
+                                <td class="text-left">Speed Average</td>
+                                <td class="text-left">{{data[item]['detail_data']['average_speed']}}</td>
                             </tr>
                             <tr>
                                 <td class="text-left">Uptime</td>
@@ -54,6 +75,10 @@
                             <tr>
                                 <td class="text-left">Downtime</td>
                                 <td class="text-left">{{data[item]['detail_data']['downtime']}}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Bandwith</td>
+                                <td class="text-left">{{data[item]['detail_data']['bandwith']}}</td>
                             </tr>
                         </tbody>
                      </table>        
