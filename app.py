@@ -3,7 +3,6 @@ import os, uuid, crochet, os, subprocess, platform, time
 crochet.setup()     # initialize crochet
 
 from operator import itemgetter
-from operator import itemgetter
 
 from flask import *
 from scrapy.crawler import CrawlerRunner
@@ -77,7 +76,8 @@ def get_results():
     if scrape_complete:
         newlist = sorted(quotes_list, key=itemgetter('seq_number'), reverse=False)
         return render_template("report.html", data = newlist) # Returns the scraped data
-    return "You Have Not Generated Data"
+    time.sleep(3)
+    return redirect(url_for('crawl_for_quotes'))
 
 @app.route('/home')
 def go_home():

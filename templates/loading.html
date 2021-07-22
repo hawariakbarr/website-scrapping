@@ -88,9 +88,10 @@
   </div>
 </body>
 <script> 
-    window.location.replace('/crawl')
+    setTimeout(function(){
+        window.location.href = '{{results}}';
+    }, 30000);
+        
 </script>
 </html>
-<!-- setTimeout(function(){
-    window.location.href = '{{results}}';
-}, 30000); -->
+<!-- window.location.replace('/crawl') -->
