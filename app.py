@@ -68,7 +68,7 @@ def crawl_for_quotes():
     return render_template('loading.html')
     # return "Scraping Still In Progress"
 
-@app.route('/results')
+@app.route('/results', methods=['GET', 'POST'])
 def get_results():
     """
     Get the results only if a spider has results
