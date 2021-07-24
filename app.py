@@ -1,4 +1,7 @@
 import os, uuid, crochet, os, subprocess, platform, time
+from subprocess import call
+
+from pathlib import Path
 
 crochet.setup()     # initialize crochet
 
@@ -35,6 +38,22 @@ scrape_complete = False
 # APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 # Download_FOLDER = os.path.join(APP_ROOT, Download_PATH)
 
+
+# @app.route('/jsonsave')
+# def json_save():
+#     """
+#     Run spider in another process and store items in file. Simply issue command:
+
+#     > scrapy crawl dmoz -o "output.json"
+
+#     wait for  this command to finish, and read output.json to client.
+#     """
+#     spider_name = "pgrt"
+    
+#     # call(["scrapy", "crawl", "{0}".format(spider_name), "-o output.json"])
+#     subprocess.check_output([path, 'crawl', spider_name, '-o', "output.json"])
+#     with open("output.json") as items_file:
+#         return items_file.read()
 # By Deafult Flask will come into this when we run the file
 @app.route('/')
 def index():
@@ -61,6 +80,12 @@ def crawl_for_quotes():
         scrape_with_crochet(quotes_list)
         return render_template('loading.html')
     elif scrape_complete:
+        if os.path.exists("outputdata.json>"): 
+        	os.remove("outputdata.json>")
+        newlist = sorted(quotes_list, key=itemgetter('seq_number'), reverse=False)
+        with open('outputdata.json', 'w') as f:
+            json.dump(newlist, f, indent=4)
+         # This will remove any existing file with the same name so that the scrapy will not append the data to any previous file.
         return redirect(url_for('get_results'))        
         # return "Scraping Complete"
     time.sleep(3)
@@ -75,7 +100,9 @@ def get_results():
     global scrape_complete
     if scrape_complete:
         newlist = sorted(quotes_list, key=itemgetter('seq_number'), reverse=False)
-        return render_template("report.html", data = newlist) # Returns the scraped data
+        with open('outputdata.json') as items_file:
+            res = json.loads(items_file.read())
+        return render_template("report.html", data = res) # Returns the scraped data
     time.sleep(3)
     return redirect(url_for('crawl_for_quotes'))
 
@@ -92,7 +119,7 @@ def go_home():
 
 @crochet.run_in_reactor
 def scrape_with_crochet(_list):
-    eventual = crawl_runner.crawl(ReviewspiderSpider, quotes_list=_list)
+    eventual = crawl_runner.crawl(ReviewspiderSpider, quotes_list =_list)
     eventual.addCallback(finished_scrape)
 
 def finished_scrape(null):

@@ -22,9 +22,9 @@ class ReviewspiderSpider(scrapy.Spider):
     # custom_settings = {'FEED_URI': 'scrapingweb/outputfile.json'} # This will tell scrapy to store the scraped data to outputfile.json and for how long the spider should run.
 
     def parse(self, response):
-        images = response.css('div.deviceoverviewsensorvalues a img::attr(src)').extract()
-        uptd_name = response.css('div.deviceoverviewsensorvalues span a::text').extract()
-        detail_urls = response.css('div.deviceoverviewsensorvalues a::attr(id)').extract()
+        images = response.css('div.deviceoverviewsensorvalues a img::attr(src)').extract()[4::]
+        uptd_name = response.css('div.deviceoverviewsensorvalues span a::text').extract()[4::]
+        detail_urls = response.css('div.deviceoverviewsensorvalues a::attr(id)').extract()[4::]
 
         
         for idx, val in enumerate(zip(detail_urls, uptd_name, images), 1):
@@ -77,3 +77,11 @@ class ReviewspiderSpider(scrapy.Spider):
             'img_url' : 'https://125.213.129.105{}'.format(img_data),
             'address' : 'Jl. Dipenogoro No.22 Citarum, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40115',
             })
+        
+        # yield {
+        #     'seq_number' : seq_data,
+        #     'uptd_name' : uptd_name,
+        #     'detail_data' : detail_data,
+        #     'img_url' : 'https://125.213.129.105{}'.format(img_data),
+        #     'address' : 'Jl. Dipenogoro No.22 Citarum, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40115',
+        # }
