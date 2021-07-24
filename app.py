@@ -1,9 +1,9 @@
-import pdfkit, os, uuid, time, crochet
+import pdfkit, os, uuid, time, crochet, sys, logging
 from operator import itemgetter
 import scrapy
 import requests
-import logging
 from operator import itemgetter
+from logging import StreamHandler, Formatter, WARNING
 
 crochet.setup()
 
@@ -124,6 +124,21 @@ def finished_scrape(null):
 def _crawler_result(item, response, spider):
     output_data.append(dict(item))
 
+# logging helper
+def p(*args):
+    print (args[0] % (len(args) > 1 and args[1:] or []))
+    sys.stdout.flush()
+
+
+def log_to_stderr(app):
+    handler = StreamHandler(sys.stderr)
+    handler.setFormatter(Formatter(
+    '%(asctime)s %(levelname)s: %(message)s '
+    '[in %(pathname)s:%(lineno)d]'
+    ))
+    handler.setLevel(WARNING)
+    app.logger.addHandler(handler)
 
 if __name__== "__main__":
+    log_to_stderr(app)
     app.run(debug=True)
