@@ -20,9 +20,6 @@
         <div class="container mb-3">
             <div class="row">
                 <div class="col-sm-12 d-flex justify-content-start mt-3">
-                    <!-- <form action="/export" method="POST">
-                        <button type="submit" onclick="tobeConfirm()" class="btn btn-default btn-sm">Convert to PDF</button>
-                    </form> -->
                     <form action="/home">
                         <button id="gohome" type="submit" class="btn btn-sm btn-success">
                             Home
@@ -34,22 +31,22 @@
         <div id="dvContainer" class="container mb-3 mt-3 h-100">
             {% for item in range(5) %}
             <div class="row">
-                <div class="col-sm col-sm-12 text-center justify-content-center" style="display: inline-block;">
+                <div class="col-sm col-sm-12 text-center justify-content-center">
                     <h5 style="font-size: 1.1rem; margin:0">{{data[item]['seq_number']}}. {{data[item]['uptd_name']}} (Nama PD UPTD disini) </h5>
                     <p style="font-size: 0.9rem;">{{data[item]['address']}}</p>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-sm col-sm-6 d-flex justify-content-start" style="display: inline-block;">
+                <div class="col-sm col-sm-6 d-flex justify-content-start">
                     <h5 style="font-size: 1.1rem;">A. Lintasarta</h5>
                 </div>
             </div>
-            <div class="row" style="margin-bottom: 40px;">
-                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block;">
+            <div class="row d-flex" style="margin-bottom: 40px;">
+                <div class="col-sm col-sm-6 d-flex justify-content-center" style="flex:1;">
                     <img src="{{data[item]['img_url']}}" width="100%" alt="{{data[item]['uptd_name']}}" style="width: 426px;border: 2px solid grey;height:206px;">
                 </div>
-                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block; margin-top:35px">
+                <div class="col-sm col-sm-6 d-flex justify-content-center" style="margin-top:35px;flex:1">
                     <table class="table-fill">
                         <tbody class="table-hover">
                             <tr>
@@ -74,15 +71,15 @@
             </div>
 
             <div class="row">
-                <div class="col-sm col-sm-6 d-flex justify-content-start" style="display: inline-block;">
+                <div class="col-sm col-sm-6 d-flex justify-content-start">
                     <h5 style="font-size: 1.1rem;">B. Icon+ (Hardcode Data)</h5>
                 </div>
             </div>
             <div class="row" style="margin-bottom: 70px;">
-                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block;">
+                <div class="col-sm col-sm-6 d-flex justify-content-center" style="flex:1;">
                     <img src="{{data[item]['img_url']}}" width="100%" alt="{{data[item]['uptd_name']}}" style="width: 426px;border: 2px solid grey;height:206px;">
                 </div>
-                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="display: inline-block; margin-top:35px">
+                <div class="col-sm col-sm-6 d-flex justify-content-center flex-grow-1" style="margin-top:35px;flex:1;">
                     <table class="table-fill">
                         <tbody class="table-hover">
                             <tr>
@@ -111,9 +108,6 @@
         <div class="container mb-3">
             <div class="row">
                 <div class="col-sm-12 d-flex justify-content-center mb-3">
-                    <!-- <form action="/export" method="POST">
-                        <button type="submit" onclick="tobeConfirm()" class="btn btn-default btn-sm">Convert to PDF</button>
-                    </form> -->
                     <button id="btnPrint" type="button" class="btn btn-sm btn-primary">
                         <i class="fas fa-download"></i> Generate PDF
                     </button>
@@ -128,15 +122,16 @@
                 // Save it!
                 var divContents = $("#dvContainer").html();
                 var printWindow = window.open('', '', 'height=800,width=800');
-                printWindow.document.write('<html><head><title></title>');
+                printWindow.document.write('<html><head style="@media print{@page {size: landscape}}"><title></title>');
                 printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">');
                 printWindow.document.write('<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>');
-                printWindow.document.write('<link rel="stylesheet" href="{{ url_for("static", filename="css/style.css") }}">');
+                printWindow.document.write('<link rel="stylesheet" href="{{ url_for("static", filename="css/style.css") }}" type="text/css" media="print">');
                 printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">');
                 printWindow.document.write('</head><body>');
                 printWindow.document.write(divContents);
                 printWindow.document.write('</body></html>');
                 printWindow.document.close();
+
                 printWindow.print();
                 printWindow.onafterprint = function(){
                     printWindow.close()

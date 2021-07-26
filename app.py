@@ -1,59 +1,74 @@
-import os, uuid, crochet, os, subprocess, platform, time
+import os, crochet, time, requests, weasyprint
+from jinja2 import Environment, FileSystemLoader
 from subprocess import call
-
+from bs4 import BeautifulSoup
 from pathlib import Path
+from operator import itemgetter
+from flask import *
+from scrapy.crawler import CrawlerRunner
+# Importing our Scraping Function from the amazon_scraping file
+from scrapingweb.scrapingweb.spiders.scrap_pgrt import ReviewspiderSpider
 
 crochet.setup()     # initialize crochet
 
-from operator import itemgetter
-
-from flask import *
-from scrapy.crawler import CrawlerRunner
-
-# Importing our Scraping Function from the amazon_scraping file
-
-from scrapingweb.scrapingweb.spiders.scrap_pgrt import ReviewspiderSpider
-
 # Creating Flask App Variable
-
 app = Flask(__name__)
-
-# if platform.system() == 'Windows':
-#     pdfkit_config = pdfkit.configuration(
-#         wkhtmltopdf=os.environ.get('WKHTMLTOPDF_PATH', 'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
-#     )
-# else:
-#     WKHTMLTOPDF_CMD = subprocess.Popen(['which', os.environ.get('WKHTMLTOPDF_PATH', '/app/bin/wkhtmltopdf')],
-#     stdout=subprocess.PIPE).communicate()[0].strip()
-#     pdfkit_config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_CMD)
 
 crawl_runner = CrawlerRunner()      # requires the Twisted reactor to run
 quotes_list = []                    # store quotes
 scrape_in_progress = False
 scrape_complete = False
 
+ROOT = r'D:\hawari\side project\Scraping\website scraping'
+ASSETS_DIR = os.path.join(ROOT, 'assets')
 
-#PDFKIT setup
-# Download_PATH = 'wkhtmltopdf/bin/wkhtmltopdf.exe'
-# APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-# Download_FOLDER = os.path.join(APP_ROOT, Download_PATH)
+TEMPLAT_SRC = os.path.join(ROOT, 'templates')
+CSS_SRC = os.path.join(ROOT, 'static/css')
+DEST_DIR = os.path.join(ROOT, 'output')
 
+TEMPLATE = 'report.html'
+CSS = 'style.css'
+OUTPUT_FILENAME = 'my-report.pdf'
 
-# @app.route('/jsonsave')
-# def json_save():
-#     """
-#     Run spider in another process and store items in file. Simply issue command:
+@app.route('/forceresult')
+def force_result():
+    with open('outputdata.json') as items_file:
+        res = json.loads(items_file.read())
+    return render_template('report.html', data=res)
 
-#     > scrapy crawl dmoz -o "output.json"
+# @app.route('/export')
+# def print_pdf():
+#     print('start generate report...')
+    # env = Environment(loader=FileSystemLoader(TEMPLAT_SRC))
+    # template = env.get_template(TEMPLATE)
+    # css = os.path.join(CSS_SRC, CSS)
 
-#     wait for  this command to finish, and read output.json to client.
-#     """
-#     spider_name = "pgrt"
-    
-#     # call(["scrapy", "crawl", "{0}".format(spider_name), "-o output.json"])
-#     subprocess.check_output([path, 'crawl', spider_name, '-o', "output.json"])
-#     with open("output.json") as items_file:
-#         return items_file.read()
+    # # variables
+    # template_vars = { 'assets_dir': 'file://' + ASSETS_DIR }
+
+    # # rendering to html string
+    # rendered_string = template.render(template_vars)
+    # report = os.path.join(DEST_DIR, OUTPUT_FILENAME)
+    # html.write_pdf(report, stylesheets=[css])
+    # headers = {
+    #     'Access-Control-Allow-Origin': '*',
+    #     'Access-Control-Allow-Methods': 'GET',
+    #     'Access-Control-Allow-Headers': 'Content-Type',
+    #     'Access-Control-Max-Age': '3600',
+    #     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
+    # }
+    # url = "http://127.0.0.1:5000/results"
+    # req = requests.get(url)
+    # time.sleep(3) #if you want to wait 3 seconds for the page to load
+    # soup = BeautifulSoup(req.text, 'html.parser')
+    # page = soup.find("div", {"id": "dvContainer"})
+    # print(soup.prettify())
+    # print(page.prettify())
+    # html = weasyprint.HTML(string=str(page))
+    # html.write_pdf(report, stylesheets=[css])
+    # print('file is generated successfully and under')
+    # return redirect(url_for('index'))
+
 # By Deafult Flask will come into this when we run the file
 @app.route('/')
 def index():
@@ -80,8 +95,8 @@ def crawl_for_quotes():
         scrape_with_crochet(quotes_list)
         return render_template('loading.html')
     elif scrape_complete:
-        if os.path.exists("outputdata.json>"): 
-        	os.remove("outputdata.json>")
+        if os.path.exists("outputdata.json"): 
+        	os.remove("outputdata.json")
         newlist = sorted(quotes_list, key=itemgetter('seq_number'), reverse=False)
         with open('outputdata.json', 'w') as f:
             json.dump(newlist, f, indent=4)
@@ -97,14 +112,13 @@ def get_results():
     """
     Get the results only if a spider has results
     """
-    global scrape_complete
-    if scrape_complete:
-        newlist = sorted(quotes_list, key=itemgetter('seq_number'), reverse=False)
-        with open('outputdata.json') as items_file:
-            res = json.loads(items_file.read())
-        return render_template("report.html", data = res) # Returns the scraped data
+    # global scrape_complete
+    # if scrape_complete:
     time.sleep(3)
-    return redirect(url_for('crawl_for_quotes'))
+    with open('outputdata.json') as items_file:
+        res = json.loads(items_file.read())
+    return render_template("report.html", data = res) # Returns the scraped data
+    # return redirect(url_for('crawl_for_quotes'))
 
 @app.route('/home')
 def go_home():

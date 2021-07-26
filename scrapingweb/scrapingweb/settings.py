@@ -6,10 +6,18 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import os
 
 BOT_NAME = 'scrapingweb'
 SPIDER_MODULES = ['scrapingweb.spiders']
 NEWSPIDER_MODULE = 'scrapingweb.spiders'
+ITEM_PIPELINES = {'scrapy.pipelines.images.ImagesPipeline': 1}
+IMAGES_STORE = r'D:\hawari\side project\Scraping\website scraping\static\img'
+
+DOWNLOAD_DELAY = 2
+
+ITEM_PIPELINES = {'scrapy.pipelines.images.ImagesPipeline': 1}
+# Disable cookies (enabled by default)
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent

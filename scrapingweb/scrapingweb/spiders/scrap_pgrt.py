@@ -2,41 +2,35 @@ import scrapy
 import requests
 import logging
 from operator import itemgetter
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+from scrapy.loader.processors import Join, MapCompose, TakeFirst
+from scrapy.pipelines.images import ImagesPipeline
+from ... scrapingweb.items import ScrapingwebItem
+from ... scrapingweb.items import ImageItem
 
-class MyItem(scrapy.Item):
-    images = scrapy.Field()
-    nextPage = scrapy.Field(default = 'null')
 
 class ReviewspiderSpider(scrapy.Spider):
     name = 'pgrt'
     start_urls = ['https://125.213.129.105/controls/objectgraph.htm?id=0&graphid=2&columns=datetime,value_,coverage&_=1625796838093&Username=Diskominfo%20Jabar&Password=P4sswordJabar']
     # quotation_mark_pattern = re.compile(r'“|”')
 
-    # myBaseUrl = ''
-    # start_urls = []
-    # def __init__(self, category='', **kwargs): # The category variable will have the input URL.
-    #     self.myBaseUrl = category
-    #     self.start_urls.append(self.myBaseUrl)
-    #     super().__init__(**kwargs)
-
-    # custom_settings = {'FEED_URI': 'scrapingweb/outputfile.json'} # This will tell scrapy to store the scraped data to outputfile.json and for how long the spider should run.
-
     def parse(self, response):
+        item = ScrapingwebItem()
         images = response.css('div.deviceoverviewsensorvalues a img::attr(src)').extract()[4::]
         uptd_name = response.css('div.deviceoverviewsensorvalues span a::text').extract()[4::]
         detail_urls = response.css('div.deviceoverviewsensorvalues a::attr(id)').extract()[4::]
 
         
         for idx, val in enumerate(zip(detail_urls, uptd_name, images), 1):
-            yield response.follow('https://125.213.129.105/controls/sensorgraph.htm?id={}&graphid=2&columns=datetime,value_,coverage&Username=Diskominfo%20Jabar&Password=P4sswordJabar'.format(val[0]), self.parse_detail, meta={'seq_data': idx, 'uptd_name': val[1], 'uptd_id': val[0], 'img_url': val[2]})   
-
+            yield response.follow('https://125.213.129.105/controls/sensorgraph.htm?id={}&graphid=2&columns=datetime,value_,coverage&Username=Diskominfo%20Jabar&Password=P4sswordJabar'.format(val[0]), self.parse_detail, meta={'seq_data': idx, 'uptd_name': val[1], 'uptd_id': val[0], 'img_url': val[2], 'item': item})   
 
     def parse_detail(self, response):
         uptd_name = response.request.meta['uptd_name']
         uptd_id= response.request.meta['uptd_id']
         seq_data = response.request.meta['seq_data']
-        img_data = response.request.meta['img_url']
-
+        img_url = response.request.meta['img_url']
+        item = response.request.meta['item']
         # detail data 
         lastscan = response.css('div.overviewsmalldata ul li span.overview-data span::text')[0].extract()
         lastup = response.css('div.overviewsmalldata ul li span.overview-data span::text')[1].extract()
@@ -74,10 +68,13 @@ class ReviewspiderSpider(scrapy.Spider):
             'seq_number' : seq_data,
             'uptd_name' : uptd_name,
             'detail_data' : detail_data,
-            'img_url' : 'https://125.213.129.105{}'.format(img_data),
+            'img_url' : 'https://125.213.129.105{}'.format(img_url),
             'address' : 'Jl. Dipenogoro No.22 Citarum, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40115',
             })
         
+        # item['image_urls'] = 'https://125.213.129.105{}'.format(img_url)
+
+        # yield ImageItem(image_urls=[img_url])
         # yield {
         #     'seq_number' : seq_data,
         #     'uptd_name' : uptd_name,
